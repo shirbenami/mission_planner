@@ -41,79 +41,9 @@ We use [Overpass Turbo](https://overpass-turbo.eu/) to query OpenStreetMap for m
 
 The raw GeoJSON contains various geometries (points, lines, polygons) and numerous unnecessary tags that can crash standard Shapefile parsers (like the DBF column limits). The following Python script cleans the data, keeps only valid Polygons/MultiPolygons, and assigns a Priority score (from 2 to 100) using a normal distribution.
 
-### Prerequisites
-Ensure you have the required Python libraries installed:
-    ```bash
-    pip install geopandas numpy
-    ```
-
-### Execution
-Create a file named `process_targets.py` and run the following script:
-
-    ```python
-    import geopandas as gpd
-    import numpy as np
-
-    def main():
-        # 1. Load the GeoJSON file downloaded from Overpass Turbo
-        input_geojson = "export.geojson"
-        try:
-            gdf = gpd.read_file(input_geojson)
-        except FileNotFoundError:
-            print(f"Error: Could not find '{input_geojson}'. Please ensure it is in the same directory.")
-            return
-
-        # --- Fixes for Shapefile limitations ---
-
-        # Fix A: Filter geometries. Keep only Polygons and MultiPolygons (drop Lines/Points)
-        gdf = gdf[gdf.geometry.type.isin(['Polygon', 'MultiPolygon'])]
-
-        # Fix B: Clean columns. Keep only essential tags to prevent DBF format crashes
-        important_columns = ['id', 'name', 'military', 'aeroway', 'landuse', 'geometry']
-        existing_columns = [col for col in important_columns if col in gdf.columns]
-        gdf = gdf[existing_columns]
-
-        # ---------------------------------------
-
-        # Check the number of remaining valid targets
-        num_of_targets = len(gdf)
-        print(f"Assigning normal distribution priorities to {num_of_targets} valid polygon targets...\n")
-
-        if num_of_targets == 0:
-            print("No valid polygons found. Exiting.")
-            return
-
-        # 2. Generate normal distribution (range: 2 to 100)
-        mean = 51       
-        std_dev = 16    
-        priorities = np.random.normal(loc=mean, scale=std_dev, size=num_of_targets)
-
-        # Clip the values to ensure nothing is outside the 2-100 range
-        priorities = np.clip(priorities, 2, 100)
-
-        # Round to nearest integer since priorities are usually whole numbers
-        priorities = np.round(priorities).astype(int)
-
-        # 3. Add the Priority column to the GeoDataFrame
-        gdf['Priority'] = priorities
-
-        # 4. Print the distribution to the console to verify the bell curve
-        print("--- Priority Distribution Statistics ---")
-        print(gdf['Priority'].describe())
-        print("\n--- Priority Bins (Checking the Bell Curve) ---")
-        distribution_bins = gdf['Priority'].value_counts(bins=10).sort_index()
-        print(distribution_bins)
-        print("\n")
-
-        # 5. Save the updated data to a Shapefile
-        output_shapefile = "normally_prioritized_targets.shp"
-        gdf.to_file(output_shapefile)
-
-        print(f"Success! Data cleaned, prioritized, and saved to '{output_shapefile}'.")
-
-    if __name__ == "__main__":
-        main()
-    ```
+```
+python3 src/mission_planner/normal_distribution_priorities.py
+```
 
 When running the script, it will generate a set of files (e.g., `.shp`, `.shx`, `.dbf`, `.prj`). Keep all of these files together, as they collectively make up the Shapefile.
 

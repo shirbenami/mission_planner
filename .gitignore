@@ -8,4 +8,6 @@
 *.zip
 *.tar.gz
 *.geojson
-/venv   
+venv/
+outputs/
+data/
