@@ -1,0 +1,11 @@
+*.cpg
+*.dbf
+*.prj
+*.sbn
+*.sbx
+*.shp
+*.shx
+*.zip
+*.tar.gz
+*.geojson
+/venv   
