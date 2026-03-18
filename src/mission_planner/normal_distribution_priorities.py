@@ -2,7 +2,7 @@ import geopandas as gpd
 import numpy as np
 
 # 1. Load the GeoJSON file downloaded from Overpass Turbo
-input_geojson = "export.geojson"
+input_geojson = "data/raw/export.geojson"
 gdf = gpd.read_file(input_geojson)
 
 # --- Fixes for Shapefile limitations ---
