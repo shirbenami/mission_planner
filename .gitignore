@@ -9,5 +9,5 @@
 *.tar.gz
 *.geojson
 venv/
-outputs/
+outputs/create_shapes
 data/
