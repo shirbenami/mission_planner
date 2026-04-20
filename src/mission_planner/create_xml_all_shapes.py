@@ -5,7 +5,7 @@ import datetime
 import glob
 import os
 
-data_dir = "/home/user1/GIT/mission_planner/data/raw/*.geojson"
+data_dir = "/home/shirb/GIT/mission_planner/data/raw/*.geojson"
 geojson_files = glob.glob(data_dir)
 
 if not geojson_files:
